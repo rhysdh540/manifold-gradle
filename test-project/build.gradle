@@ -1,0 +1,8 @@
+plugins {
+    java
+    id("xyz.wagyourtail.manifold")
+}
+
+manifold {
+    version = "2025.1.9"
+}
