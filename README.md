@@ -87,6 +87,7 @@ manifold {
         buildFile("debug.gradle.kts") // set a shared build.gradle file for use by the subprojects
 
         // set the active subproject, can also be set with the `manifold.ideActiveSubproject` gradle property
+        // defaults to the first subproject
         ideActiveSubproject = "debug-true"
 
         // add subprojects
@@ -113,6 +114,7 @@ manifold {
     
     subprojectPreprocessor {
         // set the active subproject, can also be set with the `manifold.ideActiveSubproject` gradle property
+        // defaults to the first subproject
         ideActiveSubproject = "debug-true"
         
         // add subprojects

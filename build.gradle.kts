@@ -2,10 +2,11 @@ plugins {
     kotlin("jvm") version "2.1.10"
     alias(libs.plugins.commons.gradle)
     `java-gradle-plugin`
+    `maven-publish`
 }
 
 group = "xyz.wagyourtail"
-version = "1.0-SNAPSHOT"
+version = if (project.hasProperty("version_snapshot")) project.properties["version"] as String + "-SNAPSHOT" else project.properties["version"] as String
 
 kotlin {
     jvmToolchain(8)
@@ -43,4 +44,21 @@ gradlePlugin {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "WagYourMaven"
+            url = if (project.hasProperty("version_snapshot")) {
+                uri("https://maven.wagyourtail.xyz/snapshots/")
+            } else {
+                uri("https://maven.wagyourtail.xyz/releases/")
+            }
+            credentials {
+                username = project.findProperty("mvn.user") as String? ?: System.getenv("USERNAME")
+                password = project.findProperty("mvn.key") as String? ?: System.getenv("TOKEN")
+            }
+        }
+    }
 }

@@ -2,7 +2,6 @@ package xyz.wagyourtail.manifold.plugin
 
 import groovy.lang.Closure
 import groovy.lang.DelegatesTo
-import groovy.xml.dom.DOMCategory.name
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSet
@@ -12,6 +11,7 @@ import org.gradle.language.jvm.tasks.ProcessResources
 import xyz.wagyourtail.commons.gradle.sourceSets
 import xyz.wagyourtail.commons.gradle.withSourceSet
 import xyz.wagyourtail.commonskt.properties.LazyMutable
+import xyz.wagyourtail.manifold.GradlePlugin.Companion.addManifoldArgs
 import java.io.File
 import java.util.Locale
 import java.util.Properties
@@ -158,9 +158,7 @@ class PreprocessorConfigList(val project: Project, val manifold: ManifoldExtensi
         }
 
         val compileJavaTask = project.tasks.maybeCreate(compileJava, JavaCompile::class.java).apply {
-            if ("-Xplugin:Manifold" !in options.compilerArgs) {
-                options.compilerArgs.add("-Xplugin:Manifold")
-            }
+            addManifoldArgs()
             for (cj in config.compileJava) {
                 cj()
             }
@@ -212,7 +210,7 @@ class PreprocessorConfigList(val project: Project, val manifold: ManifoldExtensi
         for (file in sourceSet.allJava.sourceDirectories) {
             if (!file.exists()) continue
             if (file in subprojectDirs) continue
-            project.logger.info("[Manifold] Writing build.properties to $file")
+            project.logger.info("Writing build.properties to $file")
 
             val buildProperties = File(file, "build.properties")
             val properties = Properties()

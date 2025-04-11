@@ -1,15 +1,12 @@
 package xyz.wagyourtail.manifold.settings
 
 import groovy.lang.Closure
-import groovy.lang.Delegate
 import groovy.lang.DelegatesTo
-import groovy.xml.dom.DOMCategory.name
 import org.gradle.api.Project
 import org.gradle.api.initialization.ProjectDescriptor
 import org.gradle.api.initialization.Settings
 import xyz.wagyourtail.commonskt.collection.defaultedMapOf
 import xyz.wagyourtail.commonskt.properties.FinalizeOnRead
-import xyz.wagyourtail.commonskt.properties.LazyMutable
 import xyz.wagyourtail.commonskt.properties.MustSet
 import xyz.wagyourtail.manifold.plugin.PreprocessorConfigList
 import xyz.wagyourtail.manifold.plugin.manifold
