@@ -1,17 +1,26 @@
-package xyz.wagyourtail.manifold
+package xyz.wagyourtail.manifold.plugin
 
 import groovy.lang.Closure
 import groovy.lang.DelegatesTo
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
-import java.util.concurrent.Callable
 import javax.inject.Inject
+
+val Project.manifold: ManifoldExtension
+    get() = extensions.getByType(ManifoldExtension::class.java)
+
+val Project.manifoldMaybe: ManifoldExtension?
+    get() = extensions.findByType(ManifoldExtension::class.java)
 
 abstract class ManifoldExtension @Inject constructor(val project: Project) {
 
     abstract val version: Property<String>
 
     init {
+        val parentVersion = project.parent?.manifoldMaybe?.version
+        if (parentVersion != null) {
+            version.convention(parentVersion)
+        }
         version.finalizeValueOnRead()
     }
 
@@ -20,21 +29,20 @@ abstract class ManifoldExtension @Inject constructor(val project: Project) {
         project.dependencies.create("systems.manifold:manifold-$name:${version.get()}")
 
 
-    private val preprocessor by lazy {
-        PreprocessorConfig()
+    val preprocessorConfig by lazy {
+        PreprocessorConfigList(project, this)
     }
 
-    fun preprocessor(config: PreprocessorConfig.() -> Unit) {
-        preprocessor.apply(config)
-        preprocessor.apply()
+    fun preprocessor(config: PreprocessorConfigList.() -> Unit) {
+        preprocessorConfig.apply(config)
     }
 
     fun preprocessor(
         @DelegatesTo(
             strategy = Closure.DELEGATE_FIRST,
-            value = PreprocessorConfig::class
+            value = PreprocessorConfigList::class
         )
-        action: Closure<PreprocessorConfig>
+        action: Closure<*>
     ) {
         preprocessor {
             action.delegate = this
@@ -43,5 +51,28 @@ abstract class ManifoldExtension @Inject constructor(val project: Project) {
         }
     }
 
+    val subprojectPreprocessorConfig by lazy {
+        SubprojectPreprocessorConfig(project)
+    }
+
+    fun subprojectPreprocessor(
+        config: SubprojectPreprocessorConfig.() -> Unit
+    ) {
+        subprojectPreprocessorConfig.apply(config)
+    }
+
+    fun subprojectPreprocessor(
+        @DelegatesTo(
+            strategy = Closure.DELEGATE_FIRST,
+            value = SubprojectPreprocessorConfig::class
+        )
+        action: Closure<*>
+    ) {
+        subprojectPreprocessor {
+            action.delegate = this
+            action.resolveStrategy = Closure.DELEGATE_FIRST
+            action.call(this)
+        }
+    }
 
 }

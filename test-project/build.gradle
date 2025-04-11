@@ -1,8 +1,37 @@
 plugins {
-    java
-    id("xyz.wagyourtail.manifold")
+    id 'java'
+    id 'xyz.wagyourtail.manifold'
 }
 
 manifold {
     version = "2025.1.9"
+
+    preprocessor {
+        config {
+            property("DEBUG")
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir("src/main/test")
+        }
+    }
+}
+
+dependencies {
+    implementation(manifold.module("ext-rt"))
+
+    annotationProcessor(manifold.module("ext"))
+    annotationProcessor(manifold.module("preprocessor"))
+}
+
+processResources {
+    inputs.properties
 }

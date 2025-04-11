@@ -1,0 +1,10 @@
+[versions]
+commons = "1.0.2"
+
+[libraries]
+commons = { module = "xyz.wagyourtail.commons:commons", version.ref = "commons" }
+commons-kt = { module = "xyz.wagyourtail.commons:commons-kt-jvm", version.ref = "commons" }
+commons-gradle = { module = "xyz.wagyourtail.commons:commons-gradle", version.ref = "commons" }
+
+[plugins]
+commons-gradle = { id = "xyz.wagyourtail.commons-gradle", version.ref = "commons" }

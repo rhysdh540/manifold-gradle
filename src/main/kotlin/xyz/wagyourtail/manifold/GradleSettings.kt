@@ -1,24 +1,25 @@
 package xyz.wagyourtail.manifold
 
 import org.gradle.api.Plugin
-import org.gradle.api.Project
+import org.gradle.api.initialization.Settings
+import xyz.wagyourtail.commons.core.logger.SimpleLogger
 import xyz.wagyourtail.commons.core.logger.prefix.LoggingPrefix
-import xyz.wagyourtail.commons.gradle.GradleLogWrapper
 import xyz.wagyourtail.commonskt.properties.FinalizeOnRead
+import xyz.wagyourtail.manifold.settings.ManifoldSettingsExtension
 import kotlin.jvm.java
 
-class GradlePlugin : Plugin<Project> {
+class GradleSettings : Plugin<Settings> {
     val version by FinalizeOnRead(GradlePlugin::class.java.`package`.implementationVersion ?: "unknown")
 
-    override fun apply(project: Project) {
-        val logger = GradleLogWrapper(LoggingPrefix.builder()
-            .loggerName("Manifold")
-            .build(),
-            project.logger
-        )
+    override fun apply(project: Settings) {
+        val logger = SimpleLogger.builder().prefix(
+            LoggingPrefix.builder()
+                .loggerName("Manifold")
+                .build()
+        ).build()
 
-        logger.lifecycle("Loaded Manifold Plugin $version")
-        project.extensions.create("manifold", ManifoldExtension::class.java)
+        logger.lifecycle("Loaded Manifold Settings Plugin $version")
+        project.extensions.create("manifold", ManifoldSettingsExtension::class.java, project)
     }
 
 }
