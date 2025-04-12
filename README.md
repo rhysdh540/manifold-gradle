@@ -4,6 +4,21 @@ This is an unofficial gradle plugin for manifold, https://manifold.systems.
 
 ### Usage
 
+To use this plugin, since I haven't put it on the gradle plugin portal yet, you will need to add my maven to your `settings.gradle`:
+
+```groovy
+pluginManagement {
+    repositories {
+        maven {
+            url = "https://maven.wagyourtail.xyz/releases"
+        }
+        maven {
+            url = "https://maven.wagyourtail.xyz/snapshots"
+        }
+        gradlePluginPortal()
+    }
+}
+```
 
 #### Basic
 
@@ -43,7 +58,7 @@ manifold {
         // default value, can also be set in gradle properties with the `manifold.ideActiveConfig` property
         ideActiveConfig = "" 
         
-        // default config, (name ""), this configures the built-in jar/processesources/compileJava tasks
+        // default config, (name ""), this configures the built-in jar/processRresources/c
         config {
             property("DEBUG")
             property("EXAMPLE", "true")
