@@ -58,7 +58,7 @@ manifold {
         // default value, can also be set in gradle properties with the `manifold.ideActiveConfig` property
         ideActiveConfig = "" 
         
-        // default config, (name ""), this configures the built-in jar/processRresources/c
+        // default config, (name ""), this configures the built-in jar/processRresources/compileJava tasks
         config {
             property("DEBUG")
             property("EXAMPLE", "true")
