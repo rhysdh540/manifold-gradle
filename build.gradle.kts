@@ -1,3 +1,5 @@
+import java.io.ByteArrayOutputStream
+
 plugins {
     kotlin("jvm") version "2.1.10"
     alias(libs.plugins.commons.gradle)
@@ -44,6 +46,26 @@ gradlePlugin {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.jar {
+    manifest {
+        attributes(
+            "Implementation-Version" to if (project.hasProperty("version_snapshot")) {
+                val stdout = ByteArrayOutputStream()
+                exec {
+                    commandLine("git", "rev-parse", "--short", "HEAD")
+                    standardOutput = stdout
+                }.assertNormalExitValue()
+                buildString {
+                    append(project.version.toString().removeSuffix("-SNAPSHOT"))
+                    append("-")
+                    append(stdout.toString().trim())
+                    append("-SNAPSHOT")
+                }
+            } else project.version
+        )
+    }
 }
 
 publishing {

@@ -1,5 +1,5 @@
 [versions]
-commons = "1.0.2"
+commons = "1.0.3"
 
 [libraries]
 commons = { module = "xyz.wagyourtail.commons:commons", version.ref = "commons" }
