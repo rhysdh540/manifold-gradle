@@ -10,6 +10,7 @@ import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.language.jvm.tasks.ProcessResources
 import xyz.wagyourtail.commons.gradle.sourceSets
 import xyz.wagyourtail.commons.gradle.withSourceSet
+import xyz.wagyourtail.commons.gradle.maybeRegister
 import xyz.wagyourtail.commonskt.properties.LazyMutable
 import xyz.wagyourtail.manifold.GradlePlugin.Companion.addManifoldArgs
 import java.io.File
@@ -157,7 +158,7 @@ class PreprocessorConfigList(val project: Project, val manifold: ManifoldExtensi
             }
         }
 
-        val compileJavaTask = project.tasks.maybeCreate(compileJava, JavaCompile::class.java).apply {
+        val compileJavaTask = project.tasks.maybeRegister<JavaCompile>(compileJava) {
             addManifoldArgs()
             for (cj in config.compileJava) {
                 cj()

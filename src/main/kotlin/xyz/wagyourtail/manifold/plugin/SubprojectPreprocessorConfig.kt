@@ -1,6 +1,7 @@
 package xyz.wagyourtail.manifold.plugin
 
 import org.gradle.api.Project
+import xyz.wagyourtail.commons.gradle.isIdeaSync
 import xyz.wagyourtail.commons.gradle.sourceSets
 import java.io.File
 
@@ -114,8 +115,4 @@ class SubprojectPreprocessorConfig(val project: Project) {
             }
         }
     }
-
-    val isIdeaSync: Boolean
-        get() = System.getProperty("idea.sync.active", "false").toBoolean()
-
 }
