@@ -33,6 +33,7 @@ class GradlePlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val logger = GradleLogWrapper(LoggingPrefix.builder()
             .loggerName("Manifold")
+            .includeThreadName(false)
             .build(),
             project.logger
         )
