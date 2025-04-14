@@ -4,6 +4,7 @@ import groovy.lang.Closure
 import groovy.lang.DelegatesTo
 import org.gradle.api.initialization.ProjectDescriptor
 import org.gradle.api.initialization.Settings
+import java.io.File
 
 open class ManifoldSettingsExtension(val settings: Settings) {
 
@@ -11,7 +12,7 @@ open class ManifoldSettingsExtension(val settings: Settings) {
 
     fun subprojectPreprocessor(root: String, config: SubprojectPreprocessorSettingsConfigList.() -> Unit) {
         val projectDir = settings.rootDir.resolve(root)
-        settings.include(projectDir.relativeTo(settings.rootDir).toString())
+        settings.include(projectDir.relativeTo(settings.rootDir).toString().replace(File.separator, ":"))
         subprojectPreprocessor(settings.project(projectDir) ?: error("Could not find project $root"), config)
     }
 
