@@ -31,7 +31,7 @@ class SubprojectPreprocessorSettingsConfigList(val settings: Settings, val root:
     @JvmOverloads
     fun project(project: String, buildFile: File = this.buildFile, config: PreprocessorConfigList.PreprocessorConfig.() -> Unit = {}) {
         val projectDir = root.projectDir.resolve(project)
-        settings.include(projectDir.relativeTo(settings.rootDir).toString())
+        settings.include(projectDir.relativeTo(settings.rootDir).toString().replace(File.separator, ":"))
         project(settings.project(projectDir), buildFile, config)
     }
 
