@@ -4,6 +4,7 @@ import groovy.lang.Closure
 import groovy.lang.DelegatesTo
 import org.gradle.api.NamedDomainObjectProvider
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
@@ -12,11 +13,11 @@ import xyz.wagyourtail.commons.gradle.sourceSets
 import xyz.wagyourtail.commons.gradle.withSourceSet
 import xyz.wagyourtail.commons.gradle.maybeRegister
 import xyz.wagyourtail.commonskt.properties.LazyMutable
+import xyz.wagyourtail.commonskt.utils.capitalized
 import xyz.wagyourtail.manifold.GradlePlugin.Companion.addManifoldArgs
 import java.io.File
 import java.util.Locale
 import java.util.Properties
-import kotlin.jvm.java
 
 class PreprocessorConfigList(val project: Project, val manifold: ManifoldExtension) {
 
@@ -105,12 +106,6 @@ class PreprocessorConfigList(val project: Project, val manifold: ManifoldExtensi
         }
     }
 
-    init {
-        project.afterEvaluate {
-            apply()
-        }
-    }
-
     val resolvedConfigs by lazy {
         val configs = mutableMapOf<String, PreprocessorConfig>()
 
@@ -134,6 +129,7 @@ class PreprocessorConfigList(val project: Project, val manifold: ManifoldExtensi
             val resolved = sourceSetProvider.findByName(sourceSet) ?: continue
 
             project.dependencies.add("annotationProcessor".withSourceSet(resolved), manifold("preprocessor"))
+            project.logger.info("[Manifold] adding preprocessor to ${project.path} / ${sourceSet}")
 
             for ((name, config) in resolvedConfigs) {
                 applyConfig(resolved, name, config)
@@ -143,40 +139,55 @@ class PreprocessorConfigList(val project: Project, val manifold: ManifoldExtensi
 
     fun applyConfig(sourceSet: SourceSet, name: String, config: PreprocessorConfig) {
         // create tasks
-        val processResources = "processResources${name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-            .withSourceSet(sourceSet)
-        val compileJava = "compileJava${name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-            .withSourceSet(sourceSet)
+        val sourceSetName = if (sourceSet.name == "main") {
+            ""
+        } else {
+            sourceSet.name
+        }
+
+        val processResources = "process${sourceSetName.capitalized()}Resources${name.capitalized()}"
+
+        val compileJava = "compile${sourceSetName.capitalized()}Java${name.capitalized()}"
+
         val classes = "classes${name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
             .withSourceSet(sourceSet)
+
         val jar = "jar${name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
             .withSourceSet(sourceSet)
 
-        val processResourcesTask = project.tasks.maybeCreate(processResources, ProcessResources::class.java).apply {
+        project.logger.info("[Manifold] adding preprocessor $name to ${project.path} / ${sourceSet.name}")
+        project.logger.info("[Manifold] properties: ${config.properties}")
+
+        val processResourcesTask = project.tasks.maybeRegister<ProcessResources>(processResources) {
             for (pr in config.processResources) {
                 pr()
             }
         }
 
         val compileJavaTask = project.tasks.maybeRegister<JavaCompile>(compileJava) {
-            addManifoldArgs()
-            for (cj in config.compileJava) {
-                cj()
+            doFirst {
+                addManifoldArgs()
+                for (cj in config.compileJava) {
+                    cj()
+                }
+                project.logger.info("[Manifold] $compileJava compilerArgs: ${options.compilerArgs}")
             }
         }
 
-        val classesTask = project.tasks.maybeCreate(classes).apply {
+        val classesTask = project.tasks.maybeRegister<Task>(classes) {
             dependsOn(processResourcesTask, compileJavaTask)
             outputs.files(processResourcesTask, compileJavaTask)
         }
 
         if (config.jar.isNotEmpty()) {
-            val jarTask = project.tasks.maybeCreate(jar, Jar::class.java).apply {
+            val jarTask = project.tasks.maybeRegister<Jar>(jar) {
                 dependsOn(classesTask)
                 from(classesTask)
 
-                for (j in config.jar) {
-                    j()
+                doFirst {
+                    for (j in config.jar) {
+                        j()
+                    }
                 }
             }
         }

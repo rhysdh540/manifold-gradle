@@ -12,13 +12,8 @@ class SubprojectPreprocessorConfig(val project: Project) {
     val sourceSets: MutableMap<String, MutableSet<File>> = mutableMapOf()
 
     var ideActiveSubproject: String? = null
-        get() {
-            if (field != null) return field
-            ideActiveSubproject = project.extensions.extraProperties.properties["manifold.ideActiveSubproject"] as String?
-            return field
-        }
-        set(value) {
-            val active = project.extensions.extraProperties.properties["manifold.ideActiveSubproject"] as String?
+        set(active) {
+            project.logger.info("[Manifold] setting ideActiveSubproject to ${active}")
             if (active == null) {
                 field = subprojects.first().path
                 return
@@ -41,7 +36,7 @@ class SubprojectPreprocessorConfig(val project: Project) {
                     }
                 }
             }
-            error("Could not find subproject for $value, expected ${subprojects.joinToString(", ")}")
+            error("Could not find subproject for $active, expected ${subprojects.joinToString(", ")}")
         }
 
     fun sourceSet(name: String, addedRoot: File) {
@@ -74,31 +69,29 @@ class SubprojectPreprocessorConfig(val project: Project) {
         }
     }
 
-    init {
-        project.afterEvaluate {
-            apply()
-        }
-    }
-
     fun apply() {
-        for (it in subprojects)  {
+        if (ideActiveSubproject == null) {
+            ideActiveSubproject = project.extensions.extraProperties.properties["manifold.ideActiveSubproject"] as String?
+        }
 
-            val projectPath = if (project.path.endsWith(":")) {
-                project.path
-            } else {
-                "${project.path}:"
-            }
+        for (it in subprojects)  {
 
             // trick idea sync into not thinking the folder is shared by multiple projects
             if (isIdeaSync && ideActiveSubproject != it.path) {
                 continue
             } else if (isIdeaSync) {
-                project.logger.info("[Manifold] Setting active subproject to $ideActiveSubproject")
+                project.logger.lifecycle("[Manifold] Setting active subproject to $ideActiveSubproject")
             }
 
+            it.apply(mapOf("plugin" to "java"))
+            it.apply(mapOf("plugin" to "xyz.wagyourtail.manifold"))
+
             it.afterEvaluate {
+
                 for (set in it.sourceSets) {
                     if (set.name in sourceSets) {
+                        project.logger.info("[Manifold] adding paths for ${it.path} / ${set.name}")
+
                         for (root in sourceSets[set.name]!!) {
                             set.java.srcDir(root.resolve("java"))
                             set.resources.srcDir(root.resolve("resources"))
@@ -108,10 +101,11 @@ class SubprojectPreprocessorConfig(val project: Project) {
                     // ensure writeBuildProperties is called *after* adding the directories
                     if (ideActiveSubproject == it.path) {
                         it.manifold.preprocessor {
-                            writeBuildProperties(set, ideActiveConfig, resolvedConfigs[ideActiveConfig]!!)
+                            writeBuildProperties(set, ideActiveConfig, resolvedConfigs.getValue(ideActiveConfig))
                         }
                     }
                 }
+
             }
         }
     }

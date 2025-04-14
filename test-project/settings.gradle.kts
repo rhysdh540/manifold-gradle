@@ -21,11 +21,11 @@ manifold {
         ideActiveSubproject = "debug-true"
 
         project("debug-true") {
-            property("DEBUG", true)
+            property("DEBUG", 2)
         }
 
         project("debug-false") {
-            property("DEBUG", false)
+            property("DEBUG", 1)
         }
 
     }

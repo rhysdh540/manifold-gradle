@@ -22,6 +22,15 @@ abstract class ManifoldExtension @Inject constructor(val project: Project) {
             version.convention(parentVersion)
         }
         version.finalizeValueOnRead()
+
+        project.afterEvaluate {
+            if (subprojectPreprocessorInitialized) {
+                subprojectPreprocessorConfig.apply()
+            }
+            if (preprocessorInitialized) {
+                preprocessorConfig.apply()
+            }
+        }
     }
 
     @JvmName("module")
@@ -29,7 +38,9 @@ abstract class ManifoldExtension @Inject constructor(val project: Project) {
         project.dependencies.create("systems.manifold:manifold-$name:${version.get()}")
 
 
-    val preprocessorConfig by lazy {
+    private var preprocessorInitialized = false
+    val preprocessorConfig: PreprocessorConfigList by lazy {
+        preprocessorInitialized = true
         PreprocessorConfigList(project, this)
     }
 
@@ -51,7 +62,9 @@ abstract class ManifoldExtension @Inject constructor(val project: Project) {
         }
     }
 
+    private var subprojectPreprocessorInitialized = false
     val subprojectPreprocessorConfig by lazy {
+        subprojectPreprocessorInitialized = true
         SubprojectPreprocessorConfig(project)
     }
 
