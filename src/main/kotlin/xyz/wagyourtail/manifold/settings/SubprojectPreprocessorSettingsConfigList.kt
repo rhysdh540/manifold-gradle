@@ -85,6 +85,18 @@ class SubprojectPreprocessorSettingsConfigList(val settings: Settings, val root:
         sourceSets[name].add(addedRoot)
     }
 
+    fun sourceSets(vararg sourceSets: Pair<String, String>) {
+        for (ss in sourceSets) {
+            sourceSet(ss.first, ss.second)
+        }
+    }
+
+    fun sourceSets(vararg sourceSets: String) {
+        for (ss in sourceSets) {
+            sourceSet(ss)
+        }
+    }
+
     fun apply(project: Project) {
         if (project.path == root.path) {
             project.manifold.subprojectPreprocessor {
