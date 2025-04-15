@@ -145,15 +145,10 @@ class PreprocessorConfigList(val project: Project, val manifold: ManifoldExtensi
             sourceSet.name
         }
 
-        val processResources = "process${sourceSetName.capitalized()}Resources${name.capitalized()}"
-
-        val compileJava = "compile${sourceSetName.capitalized()}Java${name.capitalized()}"
-
-        val classes = "classes${name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-            .withSourceSet(sourceSet)
-
-        val jar = "jar${name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }}"
-            .withSourceSet(sourceSet)
+        val processResources = "${sourceSet.processResourcesTaskName}{name.capitalized()}"
+        val compileJava = "${sourceSet.compileJavaTaskName}${name.capitalized()}"
+        val classes = "${sourceSet.classesTaskName}${name.capitalized()}"
+        val jar = "${sourceSet.jarTaskName}${name.capitalized()}"
 
         project.logger.info("[Manifold] adding preprocessor $name to ${project.path} / ${sourceSet.name}")
         project.logger.info("[Manifold] properties: ${config.properties}")
