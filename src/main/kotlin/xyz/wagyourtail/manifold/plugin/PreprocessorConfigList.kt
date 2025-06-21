@@ -139,13 +139,7 @@ class PreprocessorConfigList(val project: Project, val manifold: ManifoldExtensi
 
     fun applyConfig(sourceSet: SourceSet, name: String, config: PreprocessorConfig) {
         // create tasks
-        val sourceSetName = if (sourceSet.name == "main") {
-            ""
-        } else {
-            sourceSet.name
-        }
-
-        val processResources = "${sourceSet.processResourcesTaskName}{name.capitalized()}"
+        val processResources = "${sourceSet.processResourcesTaskName}${name.capitalized()}"
         val compileJava = "${sourceSet.compileJavaTaskName}${name.capitalized()}"
         val classes = "${sourceSet.classesTaskName}${name.capitalized()}"
         val jar = "${sourceSet.jarTaskName}${name.capitalized()}"
@@ -165,7 +159,7 @@ class PreprocessorConfigList(val project: Project, val manifold: ManifoldExtensi
                 for (cj in config.compileJava) {
                     cj()
                 }
-                project.logger.info("[Manifold] $compileJava compilerArgs: ${options.compilerArgs}")
+                logger.info("[Manifold] $compileJava compilerArgs: ${options.compilerArgs}")
             }
         }
 

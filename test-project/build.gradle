@@ -4,7 +4,7 @@ plugins {
 }
 
 manifold {
-    version = "2025.1.9"
+    version = "2025.1.20"
 
     preprocessor {
         config {
