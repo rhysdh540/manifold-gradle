@@ -16,7 +16,7 @@ class GradleTest {
         val result = GradleRunner.create()
             .withGradleVersion(gradleVersion)
             .withProjectDir(File("test-project"))
-            .withArguments("clean", "build", "--stacktrace", "--info")
+            .withArguments("clean", "build", "--stacktrace", "--info", "--configuration-cache")
             .withPluginClasspath(classpath)
             .build()
 

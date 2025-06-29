@@ -16,7 +16,6 @@ import xyz.wagyourtail.commonskt.properties.LazyMutable
 import xyz.wagyourtail.commonskt.utils.capitalized
 import xyz.wagyourtail.manifold.GradlePlugin.Companion.addManifoldArgs
 import java.io.File
-import java.util.Locale
 import java.util.Properties
 
 class PreprocessorConfigList(val project: Project, val manifold: ManifoldExtension) {
@@ -138,12 +137,6 @@ class PreprocessorConfigList(val project: Project, val manifold: ManifoldExtensi
     }
 
     fun applyConfig(sourceSet: SourceSet, name: String, config: PreprocessorConfig) {
-        // create tasks
-        val sourceSetName = if (sourceSet.name == "main") {
-            ""
-        } else {
-            sourceSet.name
-        }
 
         val processResources = "${sourceSet.processResourcesTaskName}{name.capitalized()}"
         val compileJava = "${sourceSet.compileJavaTaskName}${name.capitalized()}"
@@ -165,7 +158,7 @@ class PreprocessorConfigList(val project: Project, val manifold: ManifoldExtensi
                 for (cj in config.compileJava) {
                     cj()
                 }
-                project.logger.info("[Manifold] $compileJava compilerArgs: ${options.compilerArgs}")
+                logger.info("[Manifold] $compileJava compilerArgs: ${options.compilerArgs}")
             }
         }
 
