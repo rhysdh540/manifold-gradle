@@ -41,6 +41,9 @@ dependencies {
     
     // manifold also provides an "all" artifact
     annotationProcessor(manifold.module("all"))
+
+    // in kotlin dsl, call `manifold` like a function:
+    // annotationProcessor(manifold("preprocessor"))
 }
 
 ```
@@ -84,13 +87,13 @@ there is some helper function for subproject preprocessor configuration. this is
 this can be used to have things like different sets of dependencies or otherwise different configs with seperate outputs.
 
 to configure this, you can either use the helper in `settings.gradle`, or configure it directly in the parent project's
-`build.grade`
+`build.gradle`
 
 `settings.gradle`
 ```groovy
 
 plugins {
-    id "xyz.wagyourtail.manifold-settings" version "${pluginVersion}"
+    id "xyz.wagyourtail.manifold" version "${pluginVersion}"
 }
 
 manifold {
