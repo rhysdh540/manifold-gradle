@@ -11,6 +11,7 @@ import xyz.wagyourtail.commons.core.logger.prefix.LoggingPrefix
 import xyz.wagyourtail.commons.gradle.GradleLogWrapper
 import xyz.wagyourtail.commonskt.properties.FinalizeOnRead
 import xyz.wagyourtail.manifold.plugin.ManifoldExtension
+import xyz.wagyourtail.manifold.plugin.manifold
 import xyz.wagyourtail.manifold.settings.ManifoldSettingsExtension
 import kotlin.jvm.java
 
@@ -18,8 +19,8 @@ class GradlePlugin : Plugin<PluginAware> {
 
     companion object {
         fun JavaCompile.addManifoldArgs() {
-            if ("-Xplugin:Manifold" !in options.compilerArgs) {
-                options.compilerArgs.add("-Xplugin:Manifold --no-bootstrap")
+            if (options.compilerArgs.none { "-Xplugin:Manifold" in it }) {
+                options.compilerArgs.add("-Xplugin:Manifold ${project.manifold.pluginArgs.get().joinToString(" ")}")
 
                 val javaVersion = options.release.orNull?.let { JavaVersion.toVersion(it) }
                     ?: javaCompiler.orNull?.metadata?.jvmVersion?.let { JavaVersion.toVersion(it) }
@@ -55,8 +56,10 @@ class GradlePlugin : Plugin<PluginAware> {
 
         project.extensions.create("manifold", ManifoldExtension::class.java)
 
-        project.tasks.withType(JavaCompile::class.java).configureEach {
-            it.addManifoldArgs()
+        project.afterEvaluate {
+            project.tasks.withType(JavaCompile::class.java).configureEach {
+                it.addManifoldArgs()
+            }
         }
 
         project.repositories.exclusiveContent {

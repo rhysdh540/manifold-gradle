@@ -29,6 +29,9 @@ plugins {
 
 manifold {
     version = "${manifoldVersion}"
+    
+    // specify arguments to add to the compiler plugin:
+    pluginArgs.add("--no-bootstrap")
 }
 
 dependencies {
