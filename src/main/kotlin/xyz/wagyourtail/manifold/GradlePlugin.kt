@@ -6,6 +6,7 @@ import org.gradle.api.Project
 import org.gradle.api.initialization.Settings
 import org.gradle.api.plugins.PluginAware
 import org.gradle.api.tasks.compile.JavaCompile
+import xyz.wagyourtail.commons.core.logger.Logger
 import xyz.wagyourtail.commons.core.logger.SimpleLogger
 import xyz.wagyourtail.commons.core.logger.prefix.LoggingPrefix
 import xyz.wagyourtail.commons.gradle.GradleLogWrapper
@@ -34,11 +35,14 @@ class GradlePlugin : Plugin<PluginAware> {
 
         private val logPrefix = LoggingPrefix.builder()
             .loggerName("Manifold")
+            .includeLevel(false)
             .includeThreadName(false)
             .includeTime(false)
             .build()
 
         val pluginVersion by FinalizeOnRead(GradlePlugin::class.java.`package`.implementationVersion ?: "unknown")
+
+        private var printedMessage = false
     }
 
     override fun apply(target: PluginAware) {
@@ -52,7 +56,7 @@ class GradlePlugin : Plugin<PluginAware> {
     fun apply(project: Project) {
         val logger = GradleLogWrapper(logPrefix, project.logger)
 
-        logger.lifecycle("Loaded Manifold Plugin $pluginVersion")
+        logger.printMessage()
 
         project.extensions.create("manifold", ManifoldExtension::class.java)
 
@@ -78,8 +82,14 @@ class GradlePlugin : Plugin<PluginAware> {
     fun apply(settings: Settings) {
         val logger = SimpleLogger.builder().prefix(logPrefix).build()
 
-        logger.lifecycle("Loaded Manifold Settings Plugin $pluginVersion")
+        logger.printMessage()
         settings.extensions.create("manifold", ManifoldSettingsExtension::class.java, settings)
     }
 
+    private fun Logger.printMessage() {
+        if (!printedMessage) {
+            this.lifecycle("Loaded Manifold Plugin $pluginVersion")
+            printedMessage = true
+        }
+    }
 }
